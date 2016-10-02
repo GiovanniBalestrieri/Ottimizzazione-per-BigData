@@ -1,0 +1,746 @@
+\chapter{Identification algorithm}
+\section{The identification problem}
+
+In this chapter, we review the Least Squares Algorithm (LSA) with forgetting factor for the single-input single-output (SISO) dc motor, considering it as a linear time invariant (LTI) system given the following assumptions:
+%
+%\textbf{Assumptions}
+%\begin{itemize}
+%\item \textbf{Plant assumptions}
+%	The transfer function P(s) which describes the SISO LTI system is strictly proper,i.e. $m\leq n-1$ where the Laplace polynomials of the numerator $n(s)$ and the denominator $d(s)$ are monic (the coefficients of the highest power in s is 1), coprime polynomials of degrees \textit{m} an \textit{n} respectively.
+%\begin{equation}
+%\frac{y_{p}(s)}{r(s)}=P(s)=kp\frac{n(s)}{d(s)}
+%\label{ass}
+%\end{equation}
+%	
+%	\item \textbf{Reference input assumptions}
+%	The input r(.) is piecewise continous and bounded on $\mathbb{R}_+$.
+%\end{itemize} 
+%
+%In order to perform the identification many approaches can be used. In particular different methods have been applied to perform paramenter identification; in [1] the recursive least squares method has been used, [2] used the moments method and [3] applied the algebraic identification method. 
+%Let's consider the identification problem for system decribed by the rational stricly proper transfer function
+%\begin{equation}
+%\frac{y_{p}(s)}{r(s)}=P(s)=\frac{(\alpha_{n}s^{n-1}+\cdots+\alpha_{1})}{(s^n+\beta_{n}s^{n-1}+\cdots+\beta_{1})}
+%\label{eq1}
+%\end{equation}
+%The algotithm provides estimations of 2n polynomial coefficients $\alpha_{1}\ldots\alpha_{n}$ and $\beta_{1}\ldots\beta_{n}$ of the  numerator and denominator of the transfer function considered based on input and ouput measurements of the plant. These coefficients are unknown and this expression is a parametrization of the unknown plant. For identification purposes it is convenient to find an expression which depends linearly on the unknown parameters.
+%\begin{equation}
+%s^n y_p(s)=(\alpha_n s^{n-1}+...+\alpha_1)r(s)-(\beta_n s^{n-1}+...+\beta_1)y_p(s)
+%\label{eq2}
+%\end{equation}
+%However the expression \ref{eq2} would require explicit differentiations to be implemented. Hence to avoid this problem let's introduce a monic $n^{th}$ order Hurwitz polynomial:
+%\begin{equation}
+%\lambda(s)= s^{n}+\lambda_n s^{n-1}+...+\lambda_1
+%\label{Hurwitz}
+%\end{equation}
+%Then using \ref{ass}
+%\begin{equation}
+%d(s)y_{p}(s)=k_{p}n(s)r(s)=(\alpha_n s^{n-1}+...+\alpha_1)r(s)
+%\label{eq3}
+%\end{equation}
+%Summing $(\lambda(s)-d(s))y_{p}(s)$ to both sides of the \ref{eq3} yields:
+%\begin{equation}
+%\lambda(s)y_{p}(s)=(\alpha_n s^{n-1}+...+\alpha_1)r(s)+(\lambda(s)-d(s))y_{p}(s)
+%\label{eq4}
+%\end{equation}
+%\begin{equation}
+%y_{p}(s)=\frac{(\alpha_n s^{n-1}+...+\alpha_1)}{\lambda(s)}r(s)+\frac{(\lambda(s)-d(s))}{\lambda(s)}y_{p}(s)
+%\label{eq4}
+%\end{equation}
+%Let:
+%\begin{equation}
+%a^*(s)=\alpha_n s^{n-1}+...+\alpha_1=K_p n(s)
+%\label{a}
+%\end{equation}
+%\begin{equation}
+%b^*(s)=(\lambda_n+\beta_n)s^{n-1}+...+(\lambda_1+\beta_1)=\lambda(s)-d(s)
+%%b^*(s)=(\lambda_n +\beta_n)s^{n-1}+...+(\lambda_1-\beta_1)=\lambda(s)-d(s)
+%\label{b}
+%\end{equation}\\
+%so that he resulting new parametrization of the plant is:
+%\begin{equation}
+%y_{p}(s)=\frac{a^*(s)}{\lambda(s)}r(s)+\frac{b^*(s)}{\lambda(s)}y_p(s)
+%\label{eq5}
+%\end{equation}
+%This representation can be expressed in a state-space realization by choosing  $\Lambda\in \mathbb{R}^{n \times n}$ and $b_{\lambda}\in \mathbb{R}^{n}$  in a controllable canonical form, such that:
+%$$
+% \Lambda =
+%\left[
+%\begin{array}{ccccc}
+%0 & 1 & 0 & \cdots & 0 \\
+%0 & 0 & 1 & \cdots & 0 \\
+%. & . & . & \cdots & . \\
+%0 & 0 & 0 & \cdots & 1\\
+%-\lambda_{1} & . &. & \cdots & -\lambda_{n}\\
+%\end{array}
+%\right]
+%$$
+%$$
+%b_{\lambda}=
+%\left[
+%\begin{array}{c}
+% 0 \\
+% 0 \\
+%\vdots\\
+%1 \\
+%\end{array}
+%\right]
+%$$
+%Let's define:
+%$$
+% {a^*}^T =
+%\left[
+%\begin{array}{ccccc}
+%\alpha_1 & . & . & . & \alpha_n \\
+%\end{array}
+%\right]
+%$$
+%$$
+% {b^*}^T =
+%\left[
+%\begin{array}{ccccc}
+%\lambda_1-\beta_1 & ... &... & ... & \lambda_n-\beta_n \\
+%\end{array}
+%\right]
+%$$
+%and the vectors:
+%\begin{equation}
+%{\dot{w_p}}^{(1)}=\Lambda {w_p}^{(1)} +b_{\lambda}r
+%\label{wp1}
+%\end{equation}
+%\begin{equation}
+%{\dot{w_p}}^{(2)}=\Lambda {w_p}^{(2)} +b_{\lambda}y_p
+%\label{wp2}
+%\end{equation}
+%since the plant paramenters $a^*$ and $b^*$ are costant in the time domain the expression is:
+%\begin{equation}
+%y_{p}(t)={a^*}^T{w_p}^{(1)}(t)+{b^*}^T{w_p}^{(2)}(t)={\theta^*}^T w_p(t)
+%\label{y_p(t)}
+%\end{equation}
+%where
+%$$
+% {\theta^*}^T =
+%\left[
+%\begin{array}{cc}
+% {a^*}^T & {b^*}^T\\
+%\end{array}
+%\right]
+%$$
+%$$
+% {w_p}^T(t) =
+%\left[
+%\begin{array}{cc}
+% {{w_p}^{(1)}}^T &  {{w_p}^{(2)}}^T\\
+%\end{array}
+%\right]
+%$$
+%The vector $w_p\in \mathbb{R}^{2n}$ is the generalized state of the plant.
+%The above set of equations define a realization of the new parametrization, note that in \ref{eq3} the output $y_p(t)$ depend linearly on the unknown parameters, so that standard identification algorithms can be used.
+%
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=1\textwidth]{imgs/PlantParam.png}
+%\caption{Plant parametrization} \label{fig:PlantParam}
+%\end{figure}
+%
+\subsection*{The identifier structure}
+%The purpose of the identifier is to produce a recursive estimate $\theta(t)$ of the nominal parameters $\theta^*$. The observer has the structure described in \ref{w1} and \ref{w2} 
+%\begin{equation}
+%{\dot{w}}^{(1)}=\Lambda {w}^{(1)} +b_{\lambda}r
+%\label{w1}
+%\end{equation}
+%\begin{equation}
+%{\dot{w}}^{(2)}=\Lambda {w}^{(2)} +b_{\lambda}y_P
+%\label{w2}
+%\end{equation}
+%We also define the signals: 
+%$$
+% {\theta}^T(t) =
+%\left[
+%\begin{array}{cc}
+% {a}^T(t) & {b}^T(t)\\
+%\end{array} 
+%\right] \in \mathbb{R}^{2n}
+%$$
+%$$
+% {w}^T(t) =
+%\left[
+%\begin{array}{cc}
+% {{w}^{(1)}}^T(t) &  {{w}^{(2)}}^T(t)\\
+%\end{array} 
+%\right] \in \mathbb{R}^{2n}
+%$$
+It's worth pointing out that the observer error $w(t)-w_p(t)$ decays exponentially to zero because of its dynamic matrix $\Lambda$ which has all eigenvalues in the negative real part. 
+%We note that the generalized state of the plant can be reconstructed from available signals without the knowledge of the plant parameters.\\
+%The output can be expressed as:
+%\begin{equation}
+%y_p(t)={\theta^*}^T w(t)
+%\label{y_p(t)}
+%\end{equation}
+%and the output of the identifier is defined as:
+%\begin{equation}
+%y_i(t)={\theta}^T(t) w(t)
+%\label{y_i(t)}
+%\end{equation}
+%Considering the above equations we can define the \textit{parameter error}:
+%\begin{equation}
+%\varphi(t)={\theta}^T(t) -{\theta^*}^T
+%\label{paramerr}
+%\end{equation}
+%and the \textit{identification error}:
+%\begin{equation}
+%e_I(t)=y_i(t)-y_m(t)={\theta}^T(t) w(t)-{\theta^*}^T w(t)=\varphi^T(t)w(t)
+%\label{ei}
+%\end{equation}
+%A representation of the identifier structure is shown in Figure \ref{fig:struct}
+%\begin{figure}[htbp]
+%\centering
+%\includegraphics[width=1.0\textwidth]{imgs/IdeStruct.png}
+%\caption{Identifier structure} 
+%\label{fig:struct}
+%\end{figure}
+%
+\subsection{The identifier algorithm}
+Many identification algorithms rely on a linear expression of the form obtained above in which $y_p(t), w(t)$ are known signals and ${\theta^*}^T$ is unknown. With $y_p(t)$ and the regressor vector, $ w(t)$, is associated the standart linear error equation
+%\begin{equation}
+%e_I(t)=\varphi^T(t)w(t)
+%\label{eI}
+%\end{equation}
+%In the previous section we have described the identifier structure which constructs the regressor $w$ and the other signals with respect to the error equation, we will now discuss the identification algorithm defined by an update law differential equation. 
+%\subparagraph{Least Squares Algorithms}
+%The identification algorithms are based on recursive formulations of the parameter update law in which $\theta(t)$ is the estimate of $\theta^*$ based on input-output data up to time t. With reference to equation \ref{eq3} and \ref{eq4}, $w(t)$ may be calculated considering measurements of $r(t)$ and $y_p(t)$, and an estimate of $\theta(t)$ derived. In the estimation of the adaptive identifier parameter $\theta$ we will consider an estimate that minimizes the identification error.
+%The approach considered in this paper is the Least Squares algorithm which minimizes the integral-squarred-error (ISE)
+%\begin{equation}
+%ISE=\int_{0}^{t} e_I(\tau)\, d\tau
+%\label{ISE}
+%\end{equation}
+%Since the previous equation is linear we then compute the stationary point of the ISE function in order to obtain the estimate directly from the following condition
+%\begin{equation}
+%\frac{\partial}{\partial \theta}\left(\int_{0}^{t} e_I(\tau)\, d\tau \right) = 
+%2\int_{0}^{t} w(\tau) \left(w^T(\tau)\theta(\tau) -y_p(\tau)\right) \, d\tau = 0
+%\label{diffISE}
+%\end{equation}
+%so that the least-square estimate is given by
+%\begin{equation}
+%\theta_{LS}(t) = \left( \int_{0}^{t} w(\tau)w^T(\tau)\, d\tau \right )^{-1} \left( \int_{0}^{t} w(\tau)y_p(\tau)\, d\tau \right )
+%\label{thetaLs}
+%\end{equation}
+%By defining 
+%\begin{equation}
+%P(t) = \left( \int_{0}^{t} w(\tau)w^T(\tau)\, d\tau \right )^{-1} 
+%\label{P(t)}
+%\end{equation}
+%equation (\ref{thetaLs}) may be written
+%\begin{equation}
+%\theta_{LS}(t) = P(t)\int_{0}^{t} w(\tau)y_p(\tau)\, d\tau
+%\label{thetaLS}
+%\end{equation}
+%For adaptive control applications, we are interested in recursive formulation of parameter update law in which an update is continuously available on the basis of input-outpu data. Let's consider the derivative of (\ref{thetaLS}) and (\ref{P(t)}).
+%\begin{equation}
+%\frac{d}{dt} \left( P^{-1}(t) \right) = w(t)w^T(t)
+%\end{equation}
+%In order to derive an expression of the derivative of P(t) we will consider the following equation
+%\begin{equation}
+%0= \frac{d}{dt} (I) = \frac{d}{dt} \left( P(t)P^{-1}(t) \right) =  
+%\frac{d}{dt} \left( P(t) \right)P^{-1}(t) + P(t)\frac{d}{dt} \left( P^{-1}(t) \right)
+%\end{equation}
+%it follows that
+%\begin{equation}
+%\frac{d}{dt} \left( P(t) \right) = -P(t)\frac{d}{dt} \left( P^{-1}(t) \right)P(t)=
+% -P(t)w(t)w^T(t)P(t)
+% \label{dP}
+%\end{equation}
+%so using the last equation we can now calculate the LS paramenter update law from (\ref{thetaLS}) and (\ref{ei})
+%\begin{align} 
+%\frac{d}{dt} \theta_{LS}(t) &= -P(t)w(t)w^T(t)P(t)\int_{0}^{t} w(\tau)y_p(\tau)\, d\tau + P(t)w(t)y_p(t) \\
+% &= -P(t)w(t)w^T(t)\theta_{LS}(t) + P(t)w(t)y_p(t) \\
+% &= -P(t)w(t)\left(w^T(t)\theta_{LS}(t)-y_p(t)\right) \\
+% &= -P(t)w(t)e_I(t)
+%\end{align}
+%The recursive Least-Squares algorithm is described  by the following equations
+%\begin{align}
+%\dot{\theta}(t) &= -P(t)w(t)\left( \theta^T(t)w(t)-y_p(t)\right) \\
+%\dot{P}(t) &= -P(t)w(t)w^T(t)P(t)
+%\end{align}
+%with arbitrary initial conditions at $t_0=0$: $\theta(0)=\theta_{0}$ and $P(0)=P(0)^T=P_0>0$.
+%The LS algorithm can be derived using another approach which connects the paramenter identification problem to the stochastic state estimation problem of a linear time varying system. The parameter $\theta^*$ can be considered as the unknown state of the system
+%\begin{equation}
+%\dot{\theta^*}(t)=0
+%\label{thetastar}
+%\end{equation}
+%with output
+%\begin{equation}
+%y_p(t)=w^T(t)\theta^*(t)
+%\label{uscita}
+%\end{equation}
+%Assuming that the right-hand side of the previous equations (\ref{thetastar}) and (\ref{uscita}) are perturbed by zero mean white guassian noises of  spectral intensities respectively $Q\in \mathbb{R}^{2n \times 2n}$ e $\frac{1}{g}\in \mathbb{R}$, the least squares estimator can be viewed as the Kalman-filter:
+%\begin{equation}
+%\dot{\theta}=-gPwe_I
+%\label{kalman1}
+%\end{equation}
+%\begin{equation}
+%\dot{P}=Q-gPww^T P
+%\label{kalman2}
+%\end{equation}
+%with $Q,g>0$ are fixed design parameters. 
+%\begin{figure}[H]
+%\centering  
+%\includegraphics[width=1\textwidth]{imgs/Ls.png}
+%\caption{Least Squares implementation}\label{fig:Ls}
+%\end{figure}
+%The covariance matrix P acts in the in the $\theta$ update law as a time-varying directional adaptation gain. Equations (\ref{kalman1}) and (\ref{kalman2}) are called the covariance propagation equation.
+%The initial conditions are arbitrary but $P(0)>0$ and is chosen to reflect the confidence in the initial estimate $\theta(0)$.
+%Since $\theta^*$ is assumed to be costant,  $Q=0$, (\ref{kalman2}) is replaced by:
+%\begin{equation}
+%\dot{P}=-gPww^T P
+%\label{kalman3}
+%\end{equation}
+%or equivalently:
+%\begin{equation}
+%\dot{P}^{-1}=gww^T
+%\label{kalman4}
+%\end{equation}
+%From (\ref{kalman4}), since $g>0$, $\dot{P}^{-1}\geq 0$ so that $P^{-1}$ may grow without bound. Then $P$ will become arbitrarily small in some directions and the adaptation of the parameters in those directions may become very slow. This is the covariance wind-up problem.\\
+%This phenomenon, can be prevented using the Least Squares with forgetting factor algorithm which modifies the covariance propagation equation as follows
+%\begin{equation}
+%\dot{P}=-g(-{\lambda}P+Pww^TP)
+%\label{Pforgetting}
+%\end{equation}
+%with $\lambda$,$g>0$.
+%In the next section we will show the implementation of normalized-LS and the standard LS algorithm with forgetting factor defined respectively by
+%\begin{equation}
+%\dot{\theta}=-g \frac{Pwe_I}{1+{\gamma}w^{T}Pw} 
+%\end{equation}
+%\begin{equation}
+%\dot{P}=-g \frac{Pww^TP-{\lambda}P}{1+{\gamma}w^{T}Pw} 
+%\end{equation}
+%with $g,\gamma>0$.
+%and
+%\begin{equation}
+%\dot{\theta}=-gPwe_I 
+%\end{equation}
+%\begin{equation}
+%\dot{P}=-g(-\lambda P+Pww^TP) 
+%\end{equation}
+%The Simulink implementation of the normalized $\theta$ and the standard P calculator are shown in the following figures.
+%\begin{figure}[H]
+%\centering  
+%\includegraphics[width=1\textwidth]{imgs/thetaCalc.png}
+%\caption{Normalized theta calculator}\label{fig:theta}
+%\end{figure}
+%
+%\begin{figure}[H]
+%\centering  
+%\includegraphics[width=1\textwidth]{imgs/PCalc.png}
+%\caption{Standard P calculator with forgetting factor}\label{fig:P}
+%\end{figure}
+%
+\section{Normalized LS with forgetting factor algorithm}
+
+The algorithm has been implemented in Simulink to solve the first problem discussed at the end of chapter 1.  In order to estimate the Dc motor transfer function's parameters we will first set up the identifier and the algorithm structure.
+%
+%The implementation is based on the model reference approach, assuming that the transfer function of the motor we want to identify is close to (\ref{MotorTf}). The first step consists in the application of the LS algorithm to a simplifyied problem in which the input data are ideals and generated by the sinusoidal wave generator and the response of the reference model is the relative output signal. The ideal signals are represented in the figure \ref{fig:respF}
+%\begin{figure}[H]
+%\centering  
+%\includegraphics[width=1\textwidth]{imgs/inout.png}
+%\caption{Simulink implementation}\label{fig:inout}
+%\end{figure}
+%
+%\begin{figure}[H]
+%\centering  
+%\includegraphics[width=1\textwidth]{imgs/freqResp.png}
+%\caption{Model Reference Output}\label{fig:respF}
+%\end{figure}
+%
+%The resulting Simulink diagram is shown in figure \ref{fig:sim_ideal}. The algorithm will estimate the values of the unkown parameters based on the ideal input-output data.
+%
+%\begin{figure}[t]
+%\centering
+%\includegraphics[width=1\textwidth]{imgs/sim_ideal.png}
+%\caption{Simulink implementation}\label{fig:sim_ideal}
+%\end{figure}
+%
+%The estimated parameter values are close to the real ones. Results are depicted in figures \ref{fig:parAT} and \ref{fig:parBT}. The bode diagram of the model, the estimated transfer function are shown in figure \ref{fig:bodeT} and the identification error can be seen in \ref{fig:eiT}.
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=14cm]{imgs/bodeT.png}
+%\caption{Bode diagram: Estimated and Real Transfer function}
+%\label{fig:bodeT}
+%\end{figure}
+%The error converges to zero and the bode diagram of the estimated process coincides with the one of the Dc motor.
+%
+%In the next section we will discuss the application of the Ls algorithm to the real input-output measurements recorded from an oscilloscope. 
+%
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=14cm]{imgs/EiT.png}
+%\caption{Identification error}
+%\label{fig:eiT}
+%\end{figure}
+%
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=14cm]{imgs/parAT.png}
+%\caption{Estimated parameter values: $a_1^*=1273$, $a_2^*$=0}
+%\label{fig:parAT}
+%\end{figure}
+%
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=14cm]{imgs/parBT.png}
+%\caption{Estimated parameter values: $b_1^*=-2200$, $b_2^*=-230$}
+%\label{fig:parBT}
+%\end{figure}
+%
+\section{Parameter identification from real I-O measurements}
+
+The aim of the this identification task is to provide an accurate estimate of the plant for which we want to implement a feedback control law in order to track a setpoint. The simulations shown in the previous section were conducted considering the parameters in %(\ref{modelG})
+ known a priori and they confirmed the performances of the implemented Ls algorithm. In this paper we consider a Dc motor with a transfer function similar to the one that has been used as a reference model, equation 
+ %(\ref{MotorTf}).
+  Let's now consider the indentification problem in which the parameters appearing in the transfer function describing a SISO LTI system are to be fully determined. In particular the aim is to obtain estimates of the coefficients of the polynomials numerator n(s) and the denominator d(s) from measurements of the input r(t) and the output $y_p(t)$ only.
+% Let's comnsider the simulink model in figure \ref{fig:simu}.
+%
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=14cm]{imgs/Simu.png}
+%\caption{Simulink implementation}
+%\label{fig:simu}
+%\end{figure}
+%
+%In order to determine the roots of the denominator of $P(s)$, we will provide a signal sum of 3 sinusoidal waves at different frequencies such that $f_1=10$ Hz,$f_2=16$ Hz and $f_3=210$ Hz. The choice of these values has been made taking into account the internal dynamics of the model and the analysis made in chapter 1 of the physical laws of a Dc motor. It is worth pointing out the contribution of the mechanical and electronic of the motor to the slow and fast dynamic respectively.
+%$f_1$ and $f_2$ are close to the mechanical pole and $f_3$ to the electronic one.
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=14cm]{imgs/rR.png}
+%\caption{Resulting input}
+%\label{fig:inputR}
+%\end{figure}
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=14cm]{imgs/yR.png}
+%\caption{Resulting output}
+%\label{fig:outputR}
+%\end{figure}
+%Due to the linearity of the motor we can consider the signal resulting from the sum of 3 sinusoidal waves shown in \ref{fig:inputR} as the input to the motor and the respective ouput signal \ref{fig:outputR} measured by a tachometric dynamo which returns a value proportional to the angular velocitiy $\omega$ of the motor's shaft.
+%
+%\begin{equation}
+%y_p(t)=K_{dy}\omega(t)
+%\end{equation}
+%
+%The following matlab scipt produces *.dat files from *.CSV file returned by the oscilloscope in order to load Simulink the real input $r(t)$ and output $y_p(t)$ signals. Measured data often have offsets, slow drifts and other anomalies, as the Identification Matlab toolbox does the script removes means from the imported signals.
+%
+%\begin{lstlisting}
+%clc
+%clear all
+%close all
+%%% CSV File opening
+%
+%[FileName,PathName] = uigetfile('*.CSV','Select the CSV-FileData');
+%FilePath = strcat(PathName,FileName);
+%filecsv = FilePath;
+%fid1 = fopen(filecsv,'r');
+%% answer = inputdlg('Frequency [Hz]:','Input Frequency of Signal');
+%% f = str2double(answer);
+%C = textscan(fid1, '%s %s %f %f %f', 'delimiter', ',','EmptyValue', NaN);
+%fclose(fid1);
+%%% Data Extraction
+%A = [C{1,4} C{1,5}];
+%t  = A(:,1) - A(1,1);
+%s  = A(:,2);
+%% Sampling time used in simulink
+%Ts = t(2)-t(1);
+%% Plotting signal
+%plot(t,s);
+%grid on;
+%hold on;
+%%% Minimum distance from zero & Frequency calculation
+%% minDist computation
+%minDist = max(s);
+%for i = 1:1:(size(s,1)-1)
+%    val=abs(0-s(i));
+%    if (val~=0)
+%        if (minDist>=val)
+%            minDist=val;
+%        end
+%    end
+%end
+%alpha=minDist;
+%controws=1;
+%contcol=1;
+%TimeZeros=0;
+%theTimeFifBo=0;
+%%Frequency computation
+%for i = 1:1:(size(s))
+%    if(s(i)<0+alpha && s(i)>0-alpha)
+%      TimeZeros(controws,contcol) = i;
+%      actual = s(i);
+%      past = s(i-1);
+%      next = s(i+1);
+%      pastt = s(i-5);
+%      nextt = s(i+5);
+%      if (actual-past>0 && past~=next && past~=actual) %croissante
+%          showTimeBo(controws,contcol)= t(i);
+%          showTimeBo(controws+1,contcol)= s(i);
+%          freqVal(contcol)=t(i);
+%          contcol = contcol + 1;
+%      end
+%    end
+%end
+%disp('Verbose Mode');
+%disp(TimeZeros);
+%disp(showTimeBo);
+%disp(freqVal)
+%for i=1:1:size(freqVal,2)-1
+%    if freqVal(i)~=freqVal(i+1)
+%        fHz(i)=1/(abs(freqVal(i)-freqVal(i+1)));
+%    end
+%end
+%f=mean(fHz);
+%%% Signal parameter
+%alpha=num2str(minDist);
+%fAuto=num2str(f);
+%prompt = {'Enter signal frequency [Hz]:','Enter alpha threshold value:'};
+%dlg_title = 'Signal processing parameter';
+%num_lines = 1;
+%def = {fAuto,alpha};
+%answer = inputdlg(prompt,dlg_title,num_lines,def);
+%freqStr=answer{1,1};
+%f=str2double(freqStr);
+%alphaStr=answer{2,1};
+%alpha=str2double(alphaStr);
+%%% 
+%i = length(s) - 1;
+%if (s(5) >= s(1))
+%  crescente = 1  
+%else
+%  crescente = 0
+%end  
+%while(1)
+%switch(crescente)    
+%    case 0   
+%    if (s(i-1) >= s(1) && s(i+1)<= s(1))
+%        break;
+%        i = i-1;
+%    end   
+%    case 1
+%     if (s(i-1) <= s(1) && s(i+1)>= s(1))
+%
+%        break;
+%        i = i-1;
+%     end
+%end     
+%    i = i-1;
+%end;
+%s = s(1:i,1);
+%t = t(1:i,1);
+%sG = s(1:i,1) - mean(s);
+%grid on;
+%hold on;
+%plot(t,s,'r');
+%grid on;
+%hold on;
+%plot(t,sG,'g');
+%legend('Old','cut','cleaned');
+%title('Signal');
+%%% File manipulation
+%[file,path] = uiputfile('*.dat','Save DataMesurement');
+%FilePath = strcat(path,file);
+%fid = fopen(FilePath,'w');
+%fprintf(fid,'%f %f\n',[t'; s']);
+%fclose(fid);
+%\end{lstlisting}
+%
+%The estimated paramenters $a_1, a_2$ and $b_1, b_2$ are shown respectively in figure \ref{fig:parAR} and \ref{fig:parBR}. In this simulation the first guess of the paramenter values has been chosen to 0. We notice that the nominal values are close to the estimated ones which is an acceptable approximation for control purposes. The resulting bode diagram \ref{fig:bodeR} and the identification error \ref{fig:eiR} confirms the performances obtained in the previous section with simulated input-output data.
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=14cm]{imgs/parAR.png}
+%\caption{Estimated parameter values: a(t)}
+%\label{fig:parAR}
+%\end{figure}
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=14cm]{imgs/parBR.png}
+%\caption{Estimated parameter values: b(t)}
+%\label{fig:parBR}
+%\end{figure}
+%%\begin{figure}[H]
+%%\centering
+%%\includegraphics[width=14cm]{imgs/parR.png}
+%%\caption{Estimated parameter values}
+%%\label{fig:parR}
+%%\end{figure}
+%The estimation error is shown below in figure \ref{fig:eiR}. Note that the error is close to $10^{-5}$.
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=14cm]{imgs/eiR.png}
+%\caption{Estimation Error}
+%\label{fig:eiR}
+%\end{figure}
+%The following figure represents the difference between the estimated output and the real one. As we can see after a short period the two signals coincide.
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=14cm]{imgs/yVSeR.png}
+%\caption{Real Vs Estimated output}
+%\label{fig:yVSeR}
+%\end{figure}
+%
+%Since the measured data are noise affected the adaptation gain has been chosen to $g = 0.01$. The simulation time required to reach nominal values of the paramenters was close to 50 seconds. Since this kind of identification task does not require online implementation the results obtained are acceptable. 
+%In order to avoid this problem the following Matlab script reconstructs input-output signals analysing frequency amplitude and phase informations of measured data.
+%
+%\begin{lstlisting}
+%clc
+%clear all
+%close all
+%
+%i = 1;
+%signal = 0;
+%t_in = 0;
+%t_out = 0;
+%
+%%% Loading I-O measured data:
+%
+%[input,PathName] = uigetfile('*.dat','Open DataMesurement INPUT');
+%[output,PathName2] = uigetfile('*.dat','Open DataMesurement OUTPUT');
+%
+%FileIn = strcat(PathName,input);
+%FileOut = strcat(PathName2,output);
+%input = load(FileIn);
+%output = load(FileOut);
+%
+%%% Minimum distance from zero & Frequency calculation
+%% minDist computation
+%minDist = max(input(:,2));
+%for i = 1:1:(size(input,1)-1)
+%    val=abs(0-input(i,2));
+%    if (val~=0)
+%        if (minDist>=val)
+%            minDist=val;
+%        end
+%    end
+%end
+%alpha=minDist;
+%controws=1;
+%contcol=1;
+%TimeZeros=0;
+%theTimeFifBo=0;
+%
+%%Frequency computation
+%for i = 1:1:size(input,1)-1
+%    if(input(i,2)<0+2*alpha && input(i,2)>0-2*alpha)
+%      TimeZeros(controws,contcol) = i;
+%      actual = input(i,2);
+%      if (i>=2)
+%          past = input(i-1,2);
+%          next = input(i+1,2);
+%          if (actual-past>0 && past~=next && past~=actual) %croissante
+%              showTimeBo(controws,contcol)= input(i,1);
+%              showTimeBo(controws+1,contcol)= input(i,2);
+%              if (showTimeBo(2,1)==showTimeBo(2,contcol))
+%                freqVal(contcol)=input(i,1);
+%                contcol = contcol + 1;
+%              end
+%          end
+%      end
+%    end
+%end
+%disp('Verbose Mode');
+%disp(TimeZeros);
+%disp(showTimeBo);
+%disp(freqVal)
+%
+%for i=1:1:size(freqVal,2)-1
+%    if freqVal(i)~=freqVal(i+1)
+%        fHz(i)=1/(abs(freqVal(i)-freqVal(i+1)));
+%    end
+%end
+%f=mean(fHz);
+%fAuto=num2str(f);
+%
+%%% Signal information:
+%
+%prompt = {'Enter signal frequency [Hz]:'};
+%dlg_title = 'Signal parameter';
+%num_lines = 1;
+%def = {fAuto};
+%answer = inputdlg(prompt,dlg_title,num_lines,def);
+%freqStr=answer{1,1};
+%f=str2double(freqStr);
+%
+%t_endr = max(input(:,1));
+%t_endy = max(output(:,1));
+%Ts = input(2,1);
+%omega = 2*pi*f;
+%Ampr = max(input(:,2))
+%Ampy = max(output(:,2))
+%
+%min_in = min(input(:,2));
+%min_out = min(output(:,2));
+%
+%% Input output phase shift:
+%
+%while (t_in == 0 || t_out == 0)    
+% switch(signal)    
+%	case 0   
+%        if (input(i,2) == min_in)
+%            t_in = input(i,1);
+%            signal = 1;
+%        end 
+%    
+%    case 1
+%        if (output(i,2) == min_out)
+%            t_out = output(i,1);
+%        end 
+%    end     
+%  i = i + 1;  
+%end
+%tt = abs(t_in - t_out);
+%phi = (omega*tt)
+%ingresso=[Ampr;f*2*pi]
+%uscita=[Ampy;f*2*pi;phi]
+%
+%%% Saving File
+%% Saving reconstructed input:
+%[file,path] = uiputfile('*.dat','Save Ingresso Ricostruita');
+%
+%fileC = strcat(path,file);
+%fid = fopen(fileC,'w');
+%
+%fprintf(fid,'%f\n',[ingresso']);
+%fclose(fid);
+%
+%% Saving reconstructed Output:
+%[file,path] = uiputfile('*.dat','Save Uscita Ricostruita');
+%
+%fileC1 = strcat(path,file);
+%fid = fopen(fileC1,'w');
+%
+%fprintf(fid,'%f\n',[uscita']);
+%fclose(fid);
+%\end{lstlisting}
+%
+%Since the reconstructed data are less noise-affected, the value of g has been chosen such that $g=30$ yielding a much faster simulation. The identification error obtained is $e_I=2 \cdot 10^{-5}$ and the bode diagram are shown respectively in figure \ref{fig:eiR2} and figure \ref{fig:bodeR2}.
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=14cm]{imgs/eiR2.png}
+%\caption{Identification error with recontructed data}
+%\label{fig:eiR2}
+%\end{figure} 
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=14cm]{imgs/bodeR.png}
+%\caption{Bode diagram with recontructed data}
+%\label{fig:bodeR2}
+%\end{figure} 
+%Now that we have determined the transfer function of the Dc Motor considered in this coursework we are to able design a feedback control law to reach a desired angular velocity of the shaft.
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
