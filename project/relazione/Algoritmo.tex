@@ -1,12 +1,13 @@
-\chapter{Identification algorithm}
-\section{The identification problem}
+\section*{Data}
 
-In this chapter, we review the Least Squares Algorithm (LSA) with forgetting factor for the single-input single-output (SISO) dc motor, considering it as a linear time invariant (LTI) system given the following assumptions:
+Our data consists of 255 260 actions performed on the mobile applications. We have identified the 5 most active profiles of 2015 and collected an average of 13300 requested events per user. We excluded incomplete action records\\
+\\
+Each record consists in link between the user's id, the action performed in the mobile apps, the time spend on the page and the identification code of the event. There are 9000 titles visualizations for which the time spend on the page is less that 20 seconds.
 %
 %\textbf{Assumptions}
 %\begin{itemize}
 %\item \textbf{Plant assumptions}
-%	The transfer function P(s) which describes the SISO LTI system is strictly proper,i.e. $m\leq n-1$ where the Laplace polynomials of the numerator $n(s)$ and the denominator $d(s)$ are monic (the coefficients of the highest power in s is 1), coprime polynomials of degrees \textit{m} an \textit{n} respectively.
+%	The transfer function P(s) which describes the SISO LTI system is strictly proper,i.e. $m\leq n-1$ where the Laplace polynomials of the numerator $n(s)$ and the denominator $d(s)$ are monic (the coefficients of the highest power in s is 1), coprime polynomials of degrees \textit{m} an textit{n} respectively.
 %\begin{equation}
 %\frac{y_{p}(s)}{r(s)}=P(s)=kp\frac{n(s)}{d(s)}
 %\label{ass}
